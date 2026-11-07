@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKA Cow & Sheep Profit Calculator</title>
+<style>
+:root{color-scheme:dark;--bg:#101812;--panel:#19251d;--line:#304536;--green:#9be3a7;--muted:#b8c8bb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f3f7f3;font-family:Arial,sans-serif;padding:12px}
+main{max-width:1100px;margin:auto}header,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:13px}
+h1{margin:0 0 7px;color:var(--green);font-size:23px}h2{margin:0 0 12px;color:var(--green);font-size:18px}
+p{color:var(--muted);line-height:1.45;margin:6px 0;font-size:13px}
+.tabs{display:flex;gap:8px;margin-top:14px}.tab{flex:1;padding:12px;border:1px solid var(--line);border-radius:9px;background:#101a13;color:white;font-weight:bold}.tab.active{background:var(--green);color:#102017}
+.prices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.feedprices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;min-width:0;background:#0e1711;border:1px solid var(--line);border-radius:7px;padding:9px;color:white;font-size:14px}
+.tablewrap{width:100%;overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:760px}th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:center;font-size:13px;white-space:nowrap}
+th{color:var(--green);background:#203027}td:first-child,th:first-child{text-align:left}td input,td select{min-width:75px;text-align:center;padding:8px 5px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{background:#101a13;border:1px solid var(--line);padding:11px;border-radius:9px}.stat small{display:block;color:var(--muted);font-size:11px}.stat strong{display:block;margin-top:6px;color:var(--green);font-size:17px}
+.hidden{display:none!important}.hint{font-size:12px}
+@media(max-width:600px){body{padding:8px}header,.panel{padding:11px}h1{font-size:20px}.prices{grid-template-columns:repeat(2,minmax(0,1fr))}.feedprices{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><main>
+<header><h1>🐄🐑 SKA Animal Profit Calculator</h1><p>Calculate Cow and Sheep feed cost, product income and profit in one website.</p>
+<div class="tabs"><button class="tab active" id="cowTab">🐄 Cow</button><button class="tab" id="sheepTab">🐑 Sheep</button></div></header>
+
+<div id="cowSection">
+<section class="panel"><h2>🐄 Cow — Market Prices</h2><div class="prices">
+<div><label>Milk price / 1 unit</label><input id="cMilkPrice" type="number" min="0" step="any" value="0.1179"></div>
+<div><label>Leather price / 1 unit</label><input id="cLeatherPrice" type="number" min="0" step="any" value="0.0907"></div>
+<div><label>Extra cost per Cow</label><input id="cExtraCost" type="number" min="0" step="any" value="0"></div></div>
+<h2 style="margin-top:16px">🌾 Feed Prices — 4 Types</h2><div class="feedprices">
+<div><label>Kernel Blend price / 1 unit</label><input id="cKernel" type="number" min="0" step="any" value="0.0181"></div>
+<div><label>Hay price / 1 unit</label><input id="cHay" type="number" min="0" step="any" value="0.014"></div>
+<div><label>NutriBarley price / 1 unit</label><input id="cNutri" type="number" min="0" step="any" value="0.0207"></div>
+<div><label>Mixed Grain price / 1 unit</label><input id="cMixed" type="number" min="0" step="any" value="0.0528"></div></div>
+<p>Enter the price for one unit of each feed. Feed quantity below is entered manually.</p></section>
+<section class="panel"><h2>🐄 Cow Level Details — Level 0 to 15</h2><div class="tablewrap"><table>
+<thead><tr><th>Level</th><th>Cow Count</th><th>Feed Type</th><th>Feed Quantity Fed</th><th>Milk (auto)</th><th>Leather (auto)</th><th>Feed Cost</th><th>Profit / Loss</th></tr></thead><tbody id="cowRows"></tbody></table></div>
+<p>Boost included: Milk +0.9 and Leather +0.1 per cow. Each level has its own base production. Enter Cow Count and actual Feed Quantity.</p></section>
+<section class="panel"><h2>🐄 Cow Summary</h2><div class="summary">
+<div class="stat"><small>Total Cows</small><strong id="cowTotalCount">0</strong></div><div class="stat"><small>Total Feed Cost</small><strong id="cowTotalFeed">0</strong></div><div class="stat"><small>Total Income</small><strong id="cowTotalIncome">0</strong></div><div class="stat"><small>Net Profit / Loss</small><strong id="cowNet">0</strong></div></div></section>
+</div>
+
+<div id="sheepSection" class="hidden">
+<section class="panel"><h2>🐑 Sheep — Market Prices</h2><div class="prices">
+<div><label>Marino Wool price / 1 unit</label><input id="sMarinoPrice" type="number" min="0" step="any" value="0"></div>
+<div><label>Wool price / 1 unit</label><input id="sWoolPrice" type="number" min="0" step="any" value="0"></div>
+<div><label>Meat price / 1 unit</label><input id="sMeatPrice" type="number" min="0" step="any" value="0"></div></div>
+<h2 style="margin-top:16px">🌾 Sheep Feed Prices — 4 Types</h2><div class="feedprices">
+<div><label>Kernel Blend price / 1 unit</label><input id="sKernel" type="number" min="0" step="any" value="0"></div>
+<div><label>Hay price / 1 unit</label><input id="sHay" type="number" min="0" step="any" value="0"></div>
+<div><label>NutriBarley price / 1 unit</label><input id="sNutri" type="number" min="0" step="any" value="0"></div>
+<div><label>Mixed Grain price / 1 unit</label><input id="sMixed" type="number" min="0" step="any" value="0"></div></div>
+<p>Sheep production and boosts are not fixed. Enter the actual quantities you receive yourself.</p></section>
+<section class="panel"><h2>🐑 Sheep Level Details — Level 0 to 15</h2><div class="tablewrap"><table>
+<thead><tr><th>Level Upgrade</th><th>Sheep Count</th><th>Feed Type</th><th>Feed Quantity Fed</th><th>Marino Wool Qty</th><th>Wool Qty</th><th>Meat Qty</th><th>Feed Cost</th><th>Product Income</th><th>Profit / Loss</th></tr></thead>
+<tbody id="sheepRows"></tbody></table></div>
+<p class="hint">Sheep ke har level par Sheep Count, Feed Type, Feed Quantity, Marino Wool, Wool aur Meat ki quantity tum khud enter karoge. Abhi koi fixed boost ya production formula nahi hai.</p></section>
+<section class="panel"><h2>🐑 Sheep Summary</h2><div class="summary">
+<div class="stat"><small>Sheep Count</small><strong id="sTotalCount">0</strong></div><div class="stat"><small>Feed Cost</small><strong id="sTotalFeed">0</strong></div><div class="stat"><small>Product Income</small><strong id="sTotalIncome">0</strong></div><div class="stat"><small>Net Profit / Loss</small><strong id="sNet">0</strong></div></div></section>
+</div>
+</main>
+<script>
+const cowData=[
+["Kernel Blend",1,1],["Kernel Blend",1,1],["Kernel Blend",1,1],
+["Hay",2,1],["Hay",2,1],["Hay",2,2],["NutriBarley",2,2],
+["NutriBarley",3,2],["NutriBarley",3,2],["NutriBarley",3,3],
+["Mixed Grain",3,3],["Mixed Grain",3,3],["Mixed Grain",3,3],["Mixed Grain",3,3],["Mixed Grain",4,4]];
+const feedIds={"Kernel Blend":"cKernel","Hay":"cHay","NutriBarley":"cNutri","Mixed Grain":"cMixed"};
+const sheepFeedIds={"Kernel Blend":"sKernel","Hay":"sHay","NutriBarley":"sNutri","Mixed Grain":"sMixed"};
+const fmt=n=>Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:4});
+const cowRows=document.getElementById("cowRows");
+cowRows.innerHTML=cowData.map((r,i)=>`<tr><td>${i} → ${i+1}</td><td><input class="cowCount" type="number" min="0" step="1" value="0"></td><td>${r[0]}</td><td><input class="cowFeed" type="number" min="0" step="any" value="0"></td><td class="milk">0</td><td class="leather">0</td><td class="feedCost">0</td><td class="profit">0</td></tr>`).join("");
+function recalcCow(){let count=0,cost=0,income=0;
+[...cowRows.children].forEach((tr,i)=>{const r=cowData[i],n=Number(tr.querySelector(".cowCount").value)||0,f=Number(tr.querySelector(".cowFeed").value)||0;
+const m=n*(r[1]+.9),l=n*(r[2]+.1),fc=f*(Number(document.getElementById(feedIds[r[0]]).value)||0)+n*(Number(document.getElementById("cExtraCost").value)||0);
+const inc=m*(Number(document.getElementById("cMilkPrice").value)||0)+l*(Number(document.getElementById("cLeatherPrice").value)||0);
+tr.querySelector(".milk").textContent=fmt(m);tr.querySelector(".leather").textContent=fmt(l);tr.querySelector(".feedCost").textContent=fmt(fc);tr.querySelector(".profit").textContent=fmt(inc-fc);
+count+=n;cost+=fc;income+=inc;});
+document.getElementById("cowTotalCount").textContent=fmt(count);document.getElementById("cowTotalFeed").textContent=fmt(cost);document.getElementById("cowTotalIncome").textContent=fmt(income);document.getElementById("cowNet").textContent=fmt(income-cost);}
+const sheepRows=document.getElementById("sheepRows");
+sheepRows.innerHTML=Array.from({length:15},(_,i)=>`<tr>
+<td>${i} → ${i+1}</td>
+<td><input class="sCount" type="number" min="0" step="1" value="0"></td>
+<td><select class="sFeedType"><option>Kernel Blend</option><option>Hay</option><option>NutriBarley</option><option>Mixed Grain</option></select></td>
+<td><input class="sFeedQty" type="number" min="0" step="any" value="0"></td>
+<td><input class="sMarinoQty" type="number" min="0" step="any" value="0"></td>
+<td><input class="sWoolQty" type="number" min="0" step="any" value="0"></td>
+<td><input class="sMeatQty" type="number" min="0" step="any" value="0"></td>
+<td class="sFeedCost">0</td><td class="sIncome">0</td><td class="sProfit">0</td></tr>`).join("");
+function recalcSheep(){let totalCount=0,totalFeed=0,totalIncome=0;
+[...sheepRows.children].forEach(tr=>{
+const n=Number(tr.querySelector(".sCount").value)||0,f=Number(tr.querySelector(".sFeedQty").value)||0;
+const mq=Number(tr.querySelector(".sMarinoQty").value)||0,wq=Number(tr.querySelector(".sWoolQty").value)||0,meq=Number(tr.querySelector(".sMeatQty").value)||0;
+const type=tr.querySelector(".sFeedType").value,fc=f*(Number(document.getElementById(sheepFeedIds[type]).value)||0);
+const inc=mq*(Number(document.getElementById("sMarinoPrice").value)||0)+wq*(Number(document.getElementById("sWoolPrice").value)||0)+meq*(Number(document.getElementById("sMeatPrice").value)||0);
+tr.querySelector(".sFeedCost").textContent=fmt(fc);tr.querySelector(".sIncome").textContent=fmt(inc);tr.querySelector(".sProfit").textContent=fmt(inc-fc);
+totalCount+=n;totalFeed+=fc;totalIncome+=inc;
+});
+document.getElementById("sTotalCount").textContent=fmt(totalCount);document.getElementById("sTotalFeed").textContent=fmt(totalFeed);document.getElementById("sTotalIncome").textContent=fmt(totalIncome);document.getElementById("sNet").textContent=fmt(totalIncome-totalFeed);}
+document.addEventListener("input",e=>{if(e.target.matches("input,select")){recalcCow();recalcSheep();}});
+document.addEventListener("change",e=>{if(e.target.matches("select"))recalcSheep();});
+document.getElementById("cowTab").onclick=()=>{document.getElementById("cowSection").classList.remove("hidden");document.getElementById("sheepSection").classList.add("hidden");document.getElementById("cowTab").classList.add("active");document.getElementById("sheepTab").classList.remove("active");};
+document.getElementById("sheepTab").onclick=()=>{document.getElementById("sheepSection").classList.remove("hidden");document.getElementById("cowSection").classList.add("hidden");document.getElementById("sheepTab").classList.add("active");document.getElementById("cowTab").classList.remove("active");};
+recalcCow();recalcSheep();
+</script></body></html>
